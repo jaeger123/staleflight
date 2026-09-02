@@ -1,7 +1,7 @@
 import threading
 
 import pytest
-from staleflight import Snapshot, SWRCache, swr
+from staleflight import SWRCache, Snapshot, swr
 
 
 class FakeClock:
