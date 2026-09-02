@@ -233,6 +233,7 @@ def test_explicit_refreshes_serialize_on_the_lock(clock):
     fast.join(timeout=5)
 
     # The fast refresh could not start until the slow one finished, so the
-    # final publication is the *later-started* computation, never a stale
-    # overwrite.
-    assert cache.peek().value == 1
+    # final publication is the later-started computation (which ran second
+    # and saw order == ["slow", "run"]), never a stale overwrite.
+    assert order == ["slow", "run"]
+    assert cache.peek().value == 2
