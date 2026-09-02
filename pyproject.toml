@@ -50,6 +50,7 @@ addopts = "-q"
 
 [tool.ruff]
 line-length = 88
+extend-exclude = [".tools"]
 target-version = "py311"
 
 [tool.ruff.lint]

@@ -7,11 +7,13 @@ Zero dependencies. Fully typed (PEP 561). Python 3.11+.
 ```python
 from staleflight import swr
 
+
 @swr(ttl=5.0)
 def mesh_health() -> dict:
-    return probe_all_the_things()   # expensive: network calls, big queries…
+    return probe_all_the_things()  # expensive: network calls, big queries…
 
-snapshot = mesh_health.get()        # Snapshot(value=..., created_at=...) or None
+
+snapshot = mesh_health.get()  # Snapshot(value=..., created_at=...) or None
 ```
 
 ## The semantics, precisely
@@ -41,12 +43,12 @@ from staleflight import SWRCache, Snapshot, swr
 
 cache = SWRCache(source, ttl=5.0, on_error=log_it, clock=time.monotonic)
 
-cache.get()         # Snapshot | None — refreshes at most singleflight-once, never raises
-cache.peek()        # Snapshot | None — never triggers work
-cache.refresh()     # force recompute now; raises on failure (a command, not a read)
-cache.age()         # seconds since compute; float('inf') when empty
+cache.get()  # Snapshot | None — refreshes at most singleflight-once, never raises
+cache.peek()  # Snapshot | None — never triggers work
+cache.refresh()  # force recompute now; raises on failure (a command, not a read)
+cache.age()  # seconds since compute; float('inf') when empty
 cache.invalidate()  # drop the snapshot
-cache.last_error    # BaseException | None from the most recent failed get()-refresh
+cache.last_error  # BaseException | None from the most recent failed get()-refresh
 ```
 
 `Snapshot` is a frozen dataclass `(value, created_at)`; `created_at` is on the cache's (monotonic) clock. The `clock` parameter makes every behavior testable without sleeps — see the test suite.

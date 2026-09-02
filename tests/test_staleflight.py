@@ -152,9 +152,7 @@ def test_explicit_refresh_raises_and_keeps_previous_snapshot(clock):
 
 
 def test_peek_never_computes(clock):
-    cache = SWRCache(
-        lambda: pytest.fail("peek must not compute"), ttl=5.0, clock=clock
-    )
+    cache = SWRCache(lambda: pytest.fail("peek must not compute"), ttl=5.0, clock=clock)
 
     assert cache.peek() is None
 
