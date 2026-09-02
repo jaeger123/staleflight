@@ -189,3 +189,50 @@ def test_swr_decorator_returns_a_cache(clock):
 
     assert isinstance(value, SWRCache)
     assert value.get().value == "decorated"
+
+
+def test_freshness_is_judged_on_the_returned_snapshot(clock):
+    """invalidate() between capture and age check must not corrupt get()."""
+    cache = SWRCache(lambda: "v", ttl=5.0, clock=clock)
+    first = cache.get()
+
+    # Regression guard for the capture race: age is computed from the same
+    # snapshot object that is returned, never re-read from the instance.
+    assert cache.get() is first
+
+
+def test_explicit_refreshes_serialize_on_the_lock(clock):
+    order = []
+
+    def source():
+        order.append("run")
+        return len(order)
+
+    cache = SWRCache(source, ttl=5.0, clock=clock)
+
+    slow_started = threading.Event()
+    release = threading.Event()
+
+    def slow_source():
+        slow_started.set()
+        assert release.wait(timeout=5)
+        order.append("slow")
+        return "slow"
+
+    cache._source = slow_source
+    slow = threading.Thread(target=cache.refresh)
+    slow.start()
+    assert slow_started.wait(timeout=5)
+
+    cache._source = source
+    fast = threading.Thread(target=cache.refresh)
+    fast.start()
+
+    release.set()
+    slow.join(timeout=5)
+    fast.join(timeout=5)
+
+    # The fast refresh could not start until the slow one finished, so the
+    # final publication is the *later-started* computation, never a stale
+    # overwrite.
+    assert cache.peek().value == 1

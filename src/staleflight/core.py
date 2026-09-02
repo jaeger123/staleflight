@@ -109,11 +109,11 @@ class SWRCache(Generic[T]):
         completed.
         """
         snapshot = self._snapshot
-        if snapshot is not None and self.age() < self._ttl:
+        if snapshot is not None and self._clock() - snapshot.created_at < self._ttl:
             return snapshot
         if self._refresh_lock.acquire(blocking=False):
             try:
-                return self.refresh()
+                return self._refresh_locked()
             # Broad on purpose: stale-if-error is the contract.
             except Exception as error:
                 self.last_error = error
@@ -129,9 +129,14 @@ class SWRCache(Generic[T]):
         """Recompute synchronously and publish, regardless of freshness.
 
         Unlike :meth:`get`, a failure here propagates: an explicit refresh
-        is a command, not a read. Concurrent explicit refreshes are not
-        deduplicated; the last one to finish wins the publication.
+        is a command, not a read. Explicit refreshes serialize on the
+        refresh lock, so a slow older computation can never overwrite a
+        newer snapshot.
         """
+        with self._refresh_lock:
+            return self._refresh_locked()
+
+    def _refresh_locked(self) -> Snapshot[T]:
         snapshot = Snapshot(value=self._source(), created_at=self._clock())
         self._snapshot = snapshot
         self.last_error = None
