@@ -72,6 +72,8 @@ ignore = [
 
 [tool.ruff.lint.isort]
 case-sensitive = true
+# Match the local formatter, which groups this package with third-party.
+known-third-party = ["staleflight"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D"]  # tests document themselves through their names
