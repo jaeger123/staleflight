@@ -1,0 +1,78 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "staleflight"
+version = "0.1.0"
+description = "Serve-stale singleflight caching: RFC 5861 stale-while-revalidate and stale-if-error for plain Python callables."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "Akarsh Sharma" }]
+keywords = [
+  "cache",
+  "singleflight",
+  "stale-while-revalidate",
+  "stale-if-error",
+  "swr",
+  "ttl",
+  "dogpile",
+  "rfc5861",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/jaeger123/staleflight"
+Repository = "https://github.com/jaeger123/staleflight"
+Changelog = "https://github.com/jaeger123/staleflight/blob/main/CHANGELOG.md"
+Issues = "https://github.com/jaeger123/staleflight/issues"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/staleflight"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort
+  "N",    # pep8-naming
+  "D",    # pydocstyle
+  "UP",   # pyupgrade
+  "B",    # bugbear
+  "SIM",  # simplify
+  "RUF",  # ruff-specific
+]
+ignore = [
+  "D203",  # incompatible with D211
+  "D213",  # incompatible with D212
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]  # tests document themselves through their names
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
