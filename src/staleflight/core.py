@@ -82,6 +82,7 @@ class SWRCache(Generic[T]):
         on_error: ErrorCallback | None = None,
         clock: Clock = time.monotonic,
     ) -> None:
+        """See the class docstring for parameter semantics."""
         if ttl <= 0:
             raise ValueError(f"ttl must be positive, got {ttl!r}")
         self._source = source
@@ -113,7 +114,8 @@ class SWRCache(Generic[T]):
         if self._refresh_lock.acquire(blocking=False):
             try:
                 return self.refresh()
-            except Exception as error:  # noqa: BLE001 -- stale-if-error is the contract
+            # Broad on purpose: stale-if-error is the contract.
+            except Exception as error:
                 self.last_error = error
                 if self._on_error is not None:
                     self._on_error(error)
